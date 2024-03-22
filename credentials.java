@@ -5,7 +5,6 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -18,6 +17,13 @@ public class SystemVarCredentialsEditor extends CredentialEditor {
 
     // Define token refresh interval in milliseconds
     private static final long TOKEN_REFRESH_INTERVAL_MS = 6 * 60 * 60 * 1000;
+
+    // Define token generation endpoints
+    private static final String UAT_TOKEN_ENDPOINT = "www.uat.jwtToken.com";
+    private static final String PROD_TOKEN_ENDPOINT = "www.prod.jwtToken.com";
+
+    // Variable to store the current environment
+    private String currentEnv = "PROD"; // Default to PROD, change this as per your actual environment detection mechanism
 
     public SystemVarCredentialsEditor() {
         final JPanel p = new JPanel(new GridBagLayout());
@@ -86,11 +92,12 @@ public class SystemVarCredentialsEditor extends CredentialEditor {
         return true;
     }
 
-    // Method to generate JWT token
+    // Method to generate JWT token based on environment
     private String generateJWTToken() {
+        String tokenEndpoint = currentEnv.equals("UAT") ? UAT_TOKEN_ENDPOINT : PROD_TOKEN_ENDPOINT;
+        // Call the appropriate endpoint to generate the JWT token based on the environment
         // Replace this with your actual JWT token generation logic
-        // This could involve signing the token with a private key, etc.
-        return "YOUR_JWT_TOKEN_HERE";
+        return "YOUR_JWT_TOKEN_HERE from " + tokenEndpoint;
     }
 
     // Method to start the token refresh timer
