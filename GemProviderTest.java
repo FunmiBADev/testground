@@ -1,13 +1,21 @@
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+public class SystemVarCredentialsProviderTest {
+  private SystemVarCredentialsProvider provider;
+  @BeforeEach
+  public void setUp() {
+        provider = new SystemVarCredentialsProvider();
+    }
 @Test
 public void testGetName() {
-  SystemVarCredentialsProvider provider = new SystemVarCredentialsProvider();
   String expectedName = "System Variable Credentials";
   String actualName = provider.getName();
   assertEquals(expectedName, actualName);
 }
 @Test
 public void testGetVersion() {
-  SystemVarCredentialsProvider provider = new SystemVarCredentialsProvider();
   String expectedVersion = "2.0";
   String actualVersion = provider.getVersion();
   assertEquals(expectedVersion, actualVersion);
@@ -15,7 +23,6 @@ public void testGetVersion() {
 
 @Test
 public void testGetDescription() {
-  SystemVarCredentialsProvider provider = new SystemVarCredentialsProvider();
   String expectedDescription = "Example of CredentialsPlugin that takes password from environment variables";
   String actualDescription = provider.getDescription();
   assertEquals(expectedDescription, actualDescription);
@@ -24,7 +31,6 @@ public void testGetDescription() {
 @Test
 public void testIsSupportedValidCredentials() {
   String credentials = "username" + SystemVarCredentialsProvider.SPLITTER + "token";
-  SystemVarCredentialsProvider provider = new SystemVarCredentialsProvider();
   boolean supported = provider.isSupported(credentials);
   assertTrue(supported);
 }
@@ -32,14 +38,12 @@ public void testIsSupportedValidCredentials() {
 @Test
 public void testIsSupportedInvalidCredentialsNoToken() {
   String credentials = "username";
-  SystemVarCredentialsProvider provider = new SystemVarCredentialsProvider();
   boolean supported = provider.isSupported(credentials);
   assertFalse(supported);
 }
 
 @Test
 public void testCreateEditor() {
-  SystemVarCredentialsProvider provider = new SystemVarCredentialsProvider();
   CredentialEditor editor = provider.createEditor();
   assertTrue(editor instanceof SystemVarCredentialsEditor);
 }
@@ -66,7 +70,6 @@ public void testResolveCredentialsInvalidNoUsername() throws Exception {
   String host = "localhost";
   int port = 8080;
   
-  SystemVarCredentialsProvider provider = new SystemVarCredentialsProvider();
   provider.resolveCredentials(host, port, credentials);
 }
 
@@ -80,7 +83,6 @@ public void testResolveCredentialsException() throws Exception {
   String host = "localhost";
   int port = 8080;
   
-  SystemVarCredentialsProvider provider = new SystemVarCredentialsProvider();
   SystemVarCredentialsEditor mockEditor = Mockito.mock(SystemVarCredentialsEditor.class);
   Mockito.when(mockEditor.authenticateWithCertificate()).thenThrow(new RuntimeException("Authentication failed"));
   provider.setEditor(mockEditor);
@@ -95,3 +97,7 @@ public void testSplitValidCredentials() throws CredentialsResolvingException {
   String[] actual = SystemVarCredentialsProvider.split(credentials);
   assertArrayEquals(expected, actual);
 }
+  
+}
+
+
