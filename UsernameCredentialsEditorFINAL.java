@@ -14,11 +14,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.List;
 
-//Update test to take into consideration that the these properties are private and in accessible outside of the UsernameCredentialsEditor Class
-//private final JTextField usernameField = new JTextField();
-//private final JButton tokenButton = new JButton(); // Changed JBPasswordField to JButton
-//private String jwtToken = null; // Store the JWT token here
-
 @Slf4j
 public class UsernameCredentialsEditor extends CredentialEditor {
     private final JTextField usernameField = new JTextField();
@@ -83,14 +78,14 @@ public class UsernameCredentialsEditor extends CredentialEditor {
 
     public String authenticateWithCertificate() throws Exception {
         // Implement your authentication logic here
-        return "your_jwt_token";
+        return jwtToken;
     }
 
     @Override
     public String getCredentials() {
-//        return SystemVarCredentialsProvider.join(usernameField.getText(), (String) varnameField.getSelectedItem());
+
         if (jwtToken != null && !jwtToken.isEmpty()) {
-            return usernameField.getText() + ":" + jwtToken;
+            return SystemVarCredentialsProvider.join(usernameField.getText(), jwtToken);
         } else {
             return null;
         }
@@ -138,6 +133,7 @@ public class UsernameCredentialsEditor extends CredentialEditor {
         cons.weightx = 1;
         panel.add(comp, cons);
     }
+
 }
 
 //        tokenButton.addActionListener(new ActionListener() {
