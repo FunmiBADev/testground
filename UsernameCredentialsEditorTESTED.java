@@ -13,8 +13,9 @@ public class UsernameCredentialsEditorTest {
     private UsernameCredentialsEditor editor;
     private final String username = "fumzo";
     private final String username2 = "joy";
-    private String jwtToken = "fakeToken";
+    private final String jwtToken = "fakeToken";
     private final String token2 = "fakeToken2";
+    private final String prefix = "Bearer ";
 
 
     @Before
@@ -33,7 +34,7 @@ public class UsernameCredentialsEditorTest {
     @Test
     public void testGetCredentials_WithToken() {
         String credentials = getUserCredentials(username2, token2);
-        String expectedCredentials = "joy:fakeToken2";
+        String expectedCredentials = "joy:"+ prefix+ "fakeToken2";
 
         editor.setCredentials(credentials);
         assertEquals(expectedCredentials, editor.getCredentials());
@@ -53,7 +54,7 @@ public class UsernameCredentialsEditorTest {
     @Test
     public void testSetCredentials_WithToken() {
         String credentials = getUserCredentials(username, jwtToken);
-        String expectedCredentials = "fumzo:fakeToken";
+        String expectedCredentials = "fumzo:"+ prefix+ "fakeToken";
 
         editor.setCredentials(credentials);
         assertEquals(expectedCredentials, editor.getCredentials());
@@ -73,7 +74,7 @@ public class UsernameCredentialsEditorTest {
     @Test
     public void testGetCredentials_WithUsernameAndJwtToken() {
         String credentials = getUserCredentials(username, jwtToken);
-        String expectedCredentials = "fumzo:fakeToken";
+        String expectedCredentials = "fumzo:" + prefix+ "fakeToken";
 
         editor.setCredentials(credentials);
         assertEquals(expectedCredentials, editor.getCredentials());
@@ -92,7 +93,7 @@ public class UsernameCredentialsEditorTest {
     @Test
     public void testSetCredentials_WithUsernameAndJwtToken() {
         String actualCredentials = getUserCredentials(username, jwtToken);
-        String expectedCredentials = "fumzo:fakeToken";
+        String expectedCredentials = "fumzo:"+ prefix+ "fakeToken";
 
         editor.setCredentials(actualCredentials);
 
@@ -102,10 +103,10 @@ public class UsernameCredentialsEditorTest {
 
     @Test
     public void testAuthenticateWithCertificate_Mocked() throws Exception {
-        String mockToken = "mocked_jwt_token";
+        String mockToken = "fakeToken";
 
         // Mock the authentication logic
-        jwtToken = null;
+
         UsernameCredentialsEditor spyEditor = Mockito.spy(editor);
         Mockito.doReturn(mockToken).when(spyEditor).authenticateWithCertificate();
 
@@ -116,14 +117,12 @@ public class UsernameCredentialsEditorTest {
 
         // Simulate clicking the token button
         tokenButton.doClick();
-        jwtToken = mockToken;
 
         // Verify that the token is set correctly
         assertEquals(mockToken, jwtToken);
 
         assertNotNull(mockToken, jwtToken);
     }
-
 
     private String getUserCredentials(String username, String token) {
         if (username.isBlank() || username.isEmpty() || token.isBlank() || token.isEmpty()) {
