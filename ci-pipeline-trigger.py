@@ -1,6 +1,7 @@
+""""Jaguar without gitlab library""""
 import os
 import requests
-//Jaguar
+
 def trigger_pipeline(project_ids, ref='master'):
     token = os.environ.get('GITLAB_PRIVATE_TOKEN')
     if not token:
@@ -27,7 +28,36 @@ if __name__ == "__main__":
     
     trigger_pipeline(project_ids, ref)
 
-// GEM
+"""" Jaguar with gitlab library
+""""
+import os
+from gitlab import Gitlab
+
+def trigger_pipeline(project_ids, ref='master'):
+    token = os.environ.get('GITLAB_PRIVATE_TOKEN')
+    if not token:
+        print("Error: GitLab private access token not found in environment variables.")
+        return
+    
+    gl = Gitlab('https://gitlab.com', private_token=token)
+    
+    for project_id in project_ids:
+        try:
+            project = gl.projects.get(project_id)
+            pipeline = project.pipelines.create({'ref': ref})
+            print(f"Pipeline triggered successfully for project ID {project_id}!")
+        except Exception as e:
+            print(f"Failed to trigger pipeline for project ID {project_id}. Error: {e}")
+
+if __name__ == "__main__":
+    project_ids_input = input("Enter your GitLab project IDs separated by commas: ")
+    project_ids = [int(id.strip()) for id in project_ids_input.split(',')]
+    ref = input("Enter the branch or tag name (default: master): ") or 'master'
+    
+    trigger_pipeline(project_ids, ref)
+
+
+""""GEM""""
 import requests
 
 def trigger_gitlab_pipeline(gitlab_url, project_id, branch_name, token):
