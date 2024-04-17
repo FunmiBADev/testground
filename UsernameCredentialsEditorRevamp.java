@@ -12,6 +12,11 @@ import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,9 +25,10 @@ import org.slf4j.LoggerFactory;
 public class UsernameCredentialsEditorRevamp extends CredentialEditor {
     private static final Logger log = LoggerFactory.getLogger(UsernameCredentialsEditorRevamp.class);
     private final JTextField usernameField = new JTextField();
-    private final JButton tokenButton = new JButton();
+    private final JComboBox<String> tokenDropdown = new JComboBox<>(new String[]{"Select From List","Get UAT Token", "Get PROD Token"});
     private final JPasswordField passwordField = new JPasswordField();
-    private final String jwtToken = null; // Store the JWT token here
+
+    private String jwtToken = null;
 
     public UsernameCredentialsEditorRevamp() {
 
@@ -33,17 +39,11 @@ public class UsernameCredentialsEditorRevamp extends CredentialEditor {
         cons.fill = GridBagConstraints.HORIZONTAL;
 
         addField(panel, cons, "Username", usernameField);
-        addField(panel, cons, "Password", passwordField);  cons.gridx = 0;
-
-        cons.gridy += 1;
-        cons.weightx = 0;
-        panel.add(new JLabel("Token"), cons);
+        addField(panel, cons, "Password", passwordField);
 
         cons.gridx = 1;
         cons.weightx = 1;
-        panel.add(tokenButton, cons);
-
-        tokenButton.setText("Get Token");
+        panel.add(tokenDropdown, cons);
 
         final DocumentListener documentListener = new DocumentListener() {
             @Override
@@ -65,35 +65,67 @@ public class UsernameCredentialsEditorRevamp extends CredentialEditor {
         usernameField.getDocument().addDocumentListener(documentListener);
         passwordField.getDocument().addDocumentListener(documentListener);
 
-// Implement action listener for the button to
-        tokenButton.addActionListener(e -> {
+        tokenDropdown.addActionListener(e -> {
             try {
-                String jwtToken = authenticateWithCertificate();
-                // Set the password field with the retrieved token
-                passwordField.setText(jwtToken);
+
+                String selectedOption = (String) tokenDropdown.getSelectedItem();
+                String sessionToken = authenticateWithCertificate("www.uat.token.com");
+                String uatSessionToken = authenticateWithCertificate("www.prod.token.com");
+
+                if ("Get UAT Token".equals(selectedOption)) {
+                    passwordField.setText(uatSessionToken);
+                } else if ("Get PROD Token".equals(selectedOption)) {
+                    passwordField.setText(sessionToken);
+                } else {
+                    throw new RuntimeException("Unknown token option selected");
+                }
+
             } catch (Exception ex) {
-                // Handle exception during certificate authentication
                 log.error("Error Authenticating with certificate!", ex);
                 throw new RuntimeException(new CredentialsResolvingException("Error while resolving credentials: " + ex.getMessage(), ex));
             }
         });
 
-
         setLayout(new BorderLayout());
         add(panel, BorderLayout.NORTH);
     }
 
-    public String authenticateWithCertificate() throws Exception {
-        // Implement your authentication logic here
-        return jwtToken;
+    private String authenticateWithCertificate(String tokenUrl) throws Exception {
+        try {
+            URL url = new URL(tokenUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            int responseCode = connection.getResponseCode();
+            // Implement your token retrieval logic here
+            jwtToken = readToken(connection);
+            passwordField.setText(jwtToken);
+            return jwtToken;
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Invalid URL: " + tokenUrl, e);
+        }
     }
+
+    private String readToken(HttpURLConnection connection) throws Exception{
+        int response;
+        try {
+            response = connection.getResponseCode();
+        } catch (IOException e) {
+            log.info("Error opening connection to server", e);
+            throw new RuntimeException(e);
+        }
+        log.info("Server response = {}", response);
+
+        if (response == 200)
+            return "Token Found";
+       return "Token Not Found";
+    }
+
 
     @Override
     public String getCredentials() {
         if (passwordField.getPassword().length == 0) {
             return usernameField.getText();
         }
-
         return UsernameCredentialsProviderRevamp.join(usernameField.getText(), new String(passwordField.getPassword()));
     }
 
@@ -125,7 +157,14 @@ public class UsernameCredentialsEditorRevamp extends CredentialEditor {
 
     @Override
     public List<CredentialsError> validateEditor() {
-        return null;
+        List<CredentialsError> res = new ArrayList<>();
+        if (usernameField.getText().isBlank() || usernameField.getText().isEmpty()) {
+            res.add(new CredentialsError("Username can't be empty", usernameField));
+        }
+        if (passwordField.getPassword().length == 0) {
+            res.add(new CredentialsError("Password can't be empty", passwordField));
+        }
+        return res;
     }
 
     private void addField(JPanel panel, GridBagConstraints cons, String caption, JComponent comp) {
@@ -140,6 +179,10 @@ public class UsernameCredentialsEditorRevamp extends CredentialEditor {
         cons.gridx = 1;
         cons.weightx = 1;
         panel.add(comp, cons);
+    }
+
+    public void setJwtToken(String jwtToken) {
+        this.jwtToken = jwtToken;
     }
 
 }
