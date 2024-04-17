@@ -2,70 +2,125 @@ package org.kdb.inside.brains.credentials;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.kdb.inside.brains.core.credentials.CredentialEditor;
+import org.kdb.inside.brains.core.credentials.CredentialsError;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class UsernameCredentialsProviderRevampTest {
-    private UsernameCredentialsProviderRevamp provider;
+class UsernameCredentialsEditorRevampTest {
+
+    private UsernameCredentialsEditorRevamp editor;
+    private final String username = "fumzo";
+    private final String username2 = "joy";
+    private final String token = "fakeToken";
+    private final String token2 = "fakeToken2";
+
     @BeforeEach
     public void setUp() {
-        provider = new UsernameCredentialsProviderRevamp();
+        editor = new UsernameCredentialsEditorRevamp();
     }
 
     @Test
-    void testGetName() {
-        String expectedName = "Fetch Token By Environment";
-        String actualName = provider.getName();
-        assertEquals(expectedName, actualName);
+    public void testGetCredentials_EmptyPassword() {
+        String credentials = getUserCredentials(username, "");
+        String expectedCredentials = "fumzo";
 
+
+        editor.setCredentials(credentials);
+        assertEquals(expectedCredentials, editor.getCredentials());
     }
 
     @Test
-    void testGetVersion() {
-        String expectedVersion = "For Intellij 2023";
-        String actualVersion = provider.getVersion();
-        assertEquals(expectedVersion, actualVersion);
+    public void testGetCredentials_FilledUsernameAndPassword() {
+        String credentials = getUserCredentials(username2, token2);
+        String expectedCredentials = UsernameCredentialsProviderRevamp.join("joy", "fakeToken2");
+
+        editor.setCredentials(credentials);
+        assertEquals(expectedCredentials, editor.getCredentials());
+        assertNotNull(expectedCredentials, editor.getCredentials());
     }
 
     @Test
-    void testGetDescription() {
+    public void testGetViewableCredentials_EmptyPassword() {
+        String credentials = getUserCredentials(username2, "");
+        String expectedCredentials = "joy";
 
-        String expectedDescription = "Compatible with Plugin 5.1";
-        String actualDescription = provider.getDescription();
-        assertEquals(expectedDescription, actualDescription);
+        editor.setCredentials(credentials);
+        String viewableCredentials = editor.getViewableCredentials();
+
+        assertEquals(expectedCredentials, viewableCredentials);
     }
 
     @Test
-    void testIsSupported_ValidCredentials() {
-        String credentials = "username" + UsernameCredentialsProviderRevamp.SPLITTER + "token";
-        boolean supported = provider.isSupported(credentials);
-        assertTrue(supported);
+    public void testGetViewableCredentials_FilledUsernameAndPassword() {
+        String credentials = getUserCredentials(username, token);
+        String expectedCredentials = UsernameCredentialsProviderRevamp.join("fumzo", "*****");
+
+        editor.setCredentials(credentials);
+        String viewableCredentials = editor.getViewableCredentials();
+
+        assertEquals(expectedCredentials, viewableCredentials);
+        assertNotNull(expectedCredentials, viewableCredentials);
     }
 
     @Test
-    public void testIsNotSupported_InvalidCredentialsNoToken() {
-        String credentials = "";
-        boolean supported = provider.isSupported(credentials);
-        assertFalse(supported);
+    public void testSetCredentials_NullCredentials() {
+        String credentials = getUserCredentials("", "");
+        String expectedCredentials = "";
+
+        editor.setCredentials(credentials);
+
+        assertEquals(expectedCredentials, editor.getCredentials());
     }
 
     @Test
-    public void testCreateEditor() {
-        UsernameCredentialsProviderRevamp provider = UsernameCredentialsProviderRevamp.INSTANCE;
-        CredentialEditor editor = provider.createEditor();
+    public void testValidateEditor_ValidUsernameAndPasswordCredentials() {
+        String credentials = getUserCredentials(username, token);
+        editor.setCredentials(credentials);
 
-        assertInstanceOf(UsernameCredentialsEditorRevamp.class, editor);
+        List<CredentialsError> errors = editor.validateEditor();
+
+        assertTrue(errors.isEmpty());
     }
 
     @Test
-    public void testJoin() {
-        String username = "test_user";
-        String password = "Bearer eytokenpassword123";
-        String expectedJoined = username + UsernameCredentialsProviderRevamp.SPLITTER + password;
+    public void testValidateEditor_EmptyUsernameError() {
+        String credentials = getUserCredentials("", token2);
+        editor.setCredentials(credentials);
 
-        String joined = UsernameCredentialsProviderRevamp.join(username, password);
+        List<CredentialsError> errors = editor.validateEditor();
 
-        assertEquals(expectedJoined, joined);
+        assertFalse(errors.isEmpty());
+        assertEquals(1, errors.size());
+    }
+
+    @Test
+    public void testValidateEditor_EmptyPasswordError() {
+        String credentials = getUserCredentials(username2, "");
+        editor.setCredentials(credentials);
+
+        List<CredentialsError> errors = editor.validateEditor();
+
+        assertFalse(errors.isEmpty());
+        assertEquals(1, errors.size());
+    }
+
+    @Test
+    public void testValidateEditor_EmptyUsernamePasswordError() {
+        String credentials = getUserCredentials("", "");
+        editor.setCredentials(credentials);
+
+        List<CredentialsError> errors = editor.validateEditor();
+
+        assertFalse(errors.isEmpty());
+        assertEquals(2, errors.size());
+    }
+
+    private String getUserCredentials(String username, String password) {
+        if (password.isEmpty()  || password.isBlank()) {
+            return username;
+        }
+        return username + ":" + password;
     }
 }
