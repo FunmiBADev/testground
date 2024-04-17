@@ -13,27 +13,30 @@ public class UsernameCredentialsProviderRevamp implements CredentialProvider {
 
     public static final UsernameCredentialsProviderRevamp INSTANCE = new UsernameCredentialsProviderRevamp();
 
-    private UsernameCredentialsProviderRevamp() {
+    UsernameCredentialsProviderRevamp() {
     }
 
     @Override
     public String getName() {
-        return "Username/Password Credentials";
+        return "Fetch Token By Environment";
     }
 
     @Override
     public String getVersion() {
-        return "2.0";
+        return "For Intellij 2023";
     }
 
     @Override
     public String getDescription() {
-        return "Example of CredentialsPlugin that takes password from environment variables";
+        return "Compatible with Plugin 5.1";
     }
 
     @Override
     public boolean isSupported(String credentials) {
-        return credentials != null;
+        if (credentials.isEmpty() || credentials.isBlank()) {
+            return false;
+        }
+        return credentials.contains(SPLITTER);
     }
 
     @Override
