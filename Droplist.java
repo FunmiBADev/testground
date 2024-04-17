@@ -32,3 +32,15 @@ public String authenticateWithCertificate(String env) throws Exception {
     // Implement your authentication logic here based on the environment
     return getUrl(env);
 }
+
+public String getUrl() {
+    String env = "UAT"; // or "PROP" depending on your environment
+    if ("UAT".equals(env)) {
+        return "www.uat.token.com";
+    } else if ("PROP".equals(env)) {
+        return "www.prod.token.com";
+    } else {
+        return "Invalid environment";
+    }
+}
+
