@@ -1,98 +1,71 @@
 package org.kdb.inside.brains.credentials;
 
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import org.kdb.inside.brains.core.credentials.CredentialEditor;
-import org.kdb.inside.brains.core.credentials.CredentialProvider;
-import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.swing.*;
-
-import java.lang.reflect.Field;
 import static org.junit.jupiter.api.Assertions.*;
 
-class UsernameCredentialsEditorRevampTest {
-
-    private UsernameCredentialsEditorRevamp editor;
-    private final String username = "fumzo";
-    private final String username2 = "joy";
-    private final String jwtToken = "fakeToken";
-    private final String token2 = "fakeToken2";
-
+class UsernameCredentialsProviderRevampTest {
+    private UsernameCredentialsProviderRevamp provider;
     @BeforeEach
     public void setUp() {
-        editor = new UsernameCredentialsEditorRevamp();
+        provider = new UsernameCredentialsProviderRevamp();
     }
 
     @Test
-    public void testGetCredentials_WithUsernameAndPassword() {
-        String credentials = getUserCredentials(username2, token2);
-        String expectedCredentials = "joy:fakeToken2";
+    void testGetName() {
+        String expectedName = "Fetch Token By Environment";
+        String actualName = provider.getName();
+        assertEquals(expectedName, actualName);
 
-        editor.setCredentials(credentials);
-
-        assertEquals(expectedCredentials, editor.getCredentials());
     }
 
     @Test
-    public void testGetCredentials_WithUsernameOnly() {
-
-        String credentials = getUserCredentials(username, "");
-        editor.setCredentials(credentials);
-        String expectedCredentials = "fumzo";
-        assertEquals(expectedCredentials, editor.getCredentials());
+    void testGetVersion() {
+        String expectedVersion = "For Intellij 2023";
+        String actualVersion = provider.getVersion();
+        assertEquals(expectedVersion, actualVersion);
     }
 
     @Test
-    public void testSetCredentials_WithUsernameAndPassword() {
-        String credentials = getUserCredentials(username, jwtToken);
-        String expectedCredentials = "fumzo:fakeToken";
+    void testGetDescription() {
 
-        editor.setCredentials(credentials);
-        assertEquals(expectedCredentials, editor.getCredentials());
-        assertNotNull(expectedCredentials, editor.getCredentials());
+        String expectedDescription = "Compatible with Plugin 5.1";
+        String actualDescription = provider.getDescription();
+        assertEquals(expectedDescription, actualDescription);
     }
 
     @Test
-    public void testSetCredentials_WithUsernameOnly() {
-        String credentials = getUserCredentials(username, "");
-        String expectedCredentials = "fumzo";
-
-        editor.setCredentials(credentials);
-        assertEquals(expectedCredentials,  editor.getCredentials());
+    void testIsSupported_ValidCredentials() {
+        String credentials = "username" + UsernameCredentialsProviderRevamp.SPLITTER + "token";
+        boolean supported = provider.isSupported(credentials);
+        assertTrue(supported);
     }
 
     @Test
-    public void testAuthenticateWithCertificate_Mocked() throws Exception {
-        String mockToken = "fakeToken";
-
-        // Mock the authentication logic
-
-        UsernameCredentialsEditorRevamp spyEditor = Mockito.spy(editor);
-        Mockito.doReturn(mockToken).when(spyEditor).authenticateWithCertificate();
-
-        // Use reflection to access and modify the private field 'tokenButton'
-        Field tokenButtonField = UsernameCredentialsEditorRevamp.class.getDeclaredField("tokenButton");
-        tokenButtonField.setAccessible(true);
-        JButton tokenButton = (JButton) tokenButtonField.get(spyEditor);
-
-        // Simulate clicking the token button
-        tokenButton.doClick();
-
-        // Verify that the token is set correctly
-        assertEquals(mockToken, jwtToken);
-
-        assertNotNull(mockToken, jwtToken);
+    public void testIsNotSupported_InvalidCredentialsNoToken() {
+        String credentials = "";
+        boolean supported = provider.isSupported(credentials);
+        assertFalse(supported);
     }
 
-    private String getUserCredentials(String username, String password) {
-        if (password.isEmpty()  || password.isBlank()) {
-            return username;
-        }
-        return username + ":" + password;
+    @Test
+    public void testCreateEditor() {
+        UsernameCredentialsProviderRevamp provider = UsernameCredentialsProviderRevamp.INSTANCE;
+        CredentialEditor editor = provider.createEditor();
+
+        assertInstanceOf(UsernameCredentialsEditorRevamp.class, editor);
+    }
+
+    @Test
+    public void testJoin() {
+        String username = "test_user";
+        String password = "Bearer eytokenpassword123";
+        String expectedJoined = username + UsernameCredentialsProviderRevamp.SPLITTER + password;
+
+        String joined = UsernameCredentialsProviderRevamp.join(username, password);
+
+        assertEquals(expectedJoined, joined);
     }
 }
