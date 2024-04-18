@@ -123,4 +123,56 @@ class UsernameCredentialsEditorRevampTest {
         }
         return username + ":" + password;
     }
+
+    
 }
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import javax.swing.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+public class UsernameCredentialsEditorRevampTest {
+
+    private UsernameCredentialsEditorRevamp editor;
+
+    @BeforeEach
+    public void setUp() {
+        editor = new UsernameCredentialsEditorRevamp();
+    }
+
+    @Test
+    public void testProcessCredentialChanged_WithEmptyFields() {
+        // Mocking the processCredentialChanged method
+        UsernameCredentialsEditorRevamp spyEditor = spy(editor);
+
+        editor.usernameField.setText("");
+        editor.passwordField.setText("");
+
+        spyEditor.processCredentialChanged(editor.getCredentials());
+
+        // Assert that the method was called with empty credentials
+        verify(spyEditor).processCredentialChanged("");
+    }
+
+    @Test
+    public void testProcessCredentialChanged_WithNonEmptyFields() {
+        // Mocking the processCredentialChanged method
+        UsernameCredentialsEditorRevamp spyEditor = spy(editor);
+
+        editor.usernameField.setText("username");
+        editor.passwordField.setText("password");
+
+        spyEditor.processCredentialChanged(editor.getCredentials());
+
+        // Assert that the method was called with non-empty credentials
+        verify(spyEditor).processCredentialChanged("username:password");
+    }
+
+    // You can write more tests to cover other scenarios or edge cases
+
+}
+
