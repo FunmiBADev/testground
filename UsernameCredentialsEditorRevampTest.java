@@ -117,6 +117,17 @@ class UsernameCredentialsEditorRevampTest {
         assertEquals(2, errors.size());
     }
 
+    @Test
+    public void testTokenDropdownSelection() {
+        // Mocking the tokenDropdown to test action listener
+        JComboBox<String> mockDropdown = mock(JComboBox.class);
+        when(mockDropdown.getSelectedItem()).thenReturn("Get UAT Token");
+        editor.tokenDropdown = mockDropdown;
+
+        editor.tokenDropdown.getActionListeners()[0].actionPerformed(null);
+        assertEquals("Token Found", String.valueOf(editor.passwordField.getPassword()));
+    }
+
     private String getUserCredentials(String username, String password) {
         if (password.isEmpty()  || password.isBlank()) {
             return username;
