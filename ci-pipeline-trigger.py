@@ -123,6 +123,9 @@ def trigger_gitlab_pipeline(gitlab_url, private_token, project_id, branch_name):
 
 # Replace with your actual values
 gitlab_url = "https://gitlab.com"
+# Prompt for private token securely
+private_token = getpass("Enter your GitLab private token (will not be displayed): ")
+
 private_token = os.environ.get("GITLAB_ACCESS_TOKEN")
 
 # List of projects (project_id, branch_name) tuples
