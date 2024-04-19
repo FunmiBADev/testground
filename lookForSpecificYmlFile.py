@@ -108,3 +108,21 @@ if __name__ == "__main__":
         keyword = input("Enter the keyword to search for in 'includes' section: ")
 
         search_projects_for_keyword(projects, keyword)
+
+## Jag Group search
+
+if __name__ == "__main__":
+    token = os.environ.get('GITLAB_PRIVATE_TOKEN')
+    if not token:
+        print("Error: GitLab private access token not found in environment variables.")
+    else:
+        gl = Gitlab('https://gitlab.com', private_token=token)
+        group_id = input("Enter the group ID: ")
+        
+        # Fetch projects within the specified group only
+        group = gl.groups.get(group_id)
+        projects = group.projects.list(all=True)
+
+        keyword = input("Enter the keyword to search for in 'includes' section: ")
+
+        search_projects_for_keyword(projects, keyword)
