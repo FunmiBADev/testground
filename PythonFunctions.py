@@ -4,6 +4,35 @@ import getpass
 # GitLab API access token
 access_token = "Update"
 
+
+def create_branch(project_name, branch, token):
+    # GitLab instance URL
+    gitlab_url = 'https://gitlab.com'
+    # Create GitLab instance
+    gl = gitlab.Gitlab(gitlab_url, private_token=token)
+
+    # Find project by name
+    project = gl.projects.get(project_name)
+
+    # Create new branch from 'main' branch
+    branch_obj = project.branches.create({'branch': branch, 'ref': 'main'})
+
+    print(f"New branch '{branch_obj.name}' created successfully from main branch in project '{project_name}'.")
+
+def main():
+    project_names = ['FunmiBADev/DevOps-Course-Workshop-Module-07-Learners', 'another_project']
+    new_branch = 'test_branch'
+
+    # Get personal access token securely
+    token = getpass.getpass("Enter your GitLab personal access token: ")
+
+    for project_name in project_names:
+        create_branch(project_name, new_branch, token)
+
+if __name__ == "__main__":
+    main()
+
+
 def create_branch(project_name, branch, token):
     # GitLab instance URL
     gitlab_url = 'https://gitlab.com'
