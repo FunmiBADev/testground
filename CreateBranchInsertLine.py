@@ -23,7 +23,7 @@ project.branches.create({'branch': branch_name, 'ref': 'main'})
 
 
 # Edit gitlab-ci.yml file and insert a new line
-# Edit gitlab-ci.yml file and insert a new line
+# Edit .gitlab-ci.yml file and insert a new line
 file_path = '.gitlab-ci.yml'
 file_content = project.files.get(file_path, ref='main').decode()
 new_line = '- new/templata/scan_build_always\n'
