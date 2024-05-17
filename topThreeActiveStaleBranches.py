@@ -1,5 +1,6 @@
 import gitlab
-from datetime import datetime, timedelta
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 # Initialize the GitLab connection
 gl = gitlab.Gitlab('https://gitlab.com', private_token='your_private_token')
