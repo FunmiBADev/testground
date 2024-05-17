@@ -24,11 +24,18 @@ def sort_branches_by_activity(branches, top_n=3):
 def format_branch_info(branch):
     # Get the creation date from the branch's commit
     creation_date = branch.commit['created_at']
+    last_commit_date = branch.commit['committed_date']
+    
+    # Calculate the difference in months from today
+    last_commit_datetime = datetime.strptime(last_commit_date, "%Y-%m-%dT%H:%M:%S.%fZ")
+    today = datetime.now()
+    months_since_last_commit = relativedelta(today, last_commit_datetime).months
     
     return {
         'name': branch.name,
         'creation_date': creation_date,
-        'last_commit_date': branch.commit['committed_date'],
+        'last_commit_date': last_commit_date,
+        'months_since_last_commit': months_since_last_commit,
         'last_commit_message': branch.commit['message'],
     }
 
