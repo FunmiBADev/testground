@@ -6,10 +6,20 @@ from datetime import datetime
 import schedule
 import threading
 import time
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Credentials
 username = 'testUser'
-password = getpass.getpass(prompt="Enter your password: ")
+password = os.getenv('PASSWORD')
+
+
+# # Credentials
+# username = 'testUser'
+# password = getpass.getpass(prompt="Enter your password: ")
 
 # Platform Tags
 platform_tags = [
