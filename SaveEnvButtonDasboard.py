@@ -96,6 +96,40 @@ def fetch_and_update_data():
     combined_df['eol_jres'] = combined_df['jre_version'].apply(lambda x: x if x and x.startswith('1.8.0') and int(x.split('_')[1]) < 352 else None)
     combined_df['env_var_cmd'] = combined_df['jre_version'].apply(lambda x: x if x and (x.startswith('JAVA_8') or x.startswith('JAVA_11') or x.startswith('JAVA_17')) else None)
 
+def save_daily_counts2datecheck():
+    today = datetime.now().strftime('%Y-%m-%d')
+    data = []
+
+    # Read existing data
+    if os.path.exists('daily_jre_counts.csv'):
+        existing_df = pd.read_csv('daily_jre_counts.csv')
+    else:
+        existing_df = pd.DataFrame()
+
+    for tag in platform_tags:
+        platform_tag_name = tag['tag_name']
+        filtered_df = combined_df[combined_df['platform_tag_name'] == platform_tag_name]
+        green_jres_count = filtered_df['green_jres'].notna().sum()
+        eol_jres_count = filtered_df['eol_jres'].notna().sum()
+        env_var_cmd_count = filtered_df['env_var_cmd'].notna().sum()
+        
+        data.append({
+            'date': today,
+            'platform_tag_name': platform_tag_name,
+            'green_jres_count': green_jres_count,
+            'eol_jres_count': eol_jres_count,
+            'env_var_cmd_count': env_var_cmd_count
+        })
+
+    df = pd.DataFrame(data)
+
+    # Merge with existing data and drop duplicates based on date
+    merged_df = pd.concat([existing_df, df]).drop_duplicates(subset=['date'], keep='last')
+
+    # Save merged DataFrame to CSV
+    merged_df.to_csv('daily_jre_counts.csv', index=False)
+
+
 def save_daily_counts():
     today = datetime.now().strftime('%Y-%m-%d')
     data = []
