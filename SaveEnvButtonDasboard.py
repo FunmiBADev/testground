@@ -151,11 +151,17 @@ st.write(f"Green JREs: {green_jres_count}")
 st.write(f"End-of-Life JREs: {eol_jres_count}")
 st.write(f"env_var_cmd Count: {env_var_cmd_count}")
 
-# Create a bar chart
-data = {'JRE Type': ['Green JREs', 'End-of-Life JREs', 'env_var_cmd'], 'Count': [green_jres_count, eol_jres_count, env_var_cmd_count]}
+# Create a bar chart with custom colors
+data = {
+    'JRE Type': ['Green JREs', 'End-of-Life JREs', 'env_var_cmd'],
+    'Count': [green_jres_count, eol_jres_count, env_var_cmd_count],
+    'Color': ['green', 'red', 'blue']
+}
 bar_chart_df = pd.DataFrame(data)
 
-fig = px.bar(bar_chart_df, x='JRE Type', y='Count', title='JRE Versions Distribution')
+fig = px.bar(bar_chart_df, x='JRE Type', y='Count', color='JRE Type',
+             color_discrete_map={'Green JREs': 'green', 'End-of-Life JREs': 'red', 'env_var_cmd': 'blue'},
+             title='JRE Versions Distribution')
 
 st.plotly_chart(fig)
 
@@ -174,7 +180,9 @@ if os.path.exists('daily_jre_counts.csv'):
     # Create a line chart for daily counts
     fig = px.line(daily_counts_df, x='date', y=['green_jres_count', 'eol_jres_count', 'env_var_cmd_count'],
                   labels={'value': 'Count', 'variable': 'JRE Type'},
-                  title='Daily Green, End-of-Life, and env_var_cmd JRE Counts')
+                  title='Daily Green, End-of-Life, and env_var_cmd JRE Counts',
+                  color_discrete_map={'green_jres_count': 'green', 'eol_jres_count': 'red', 'env_var_cmd_count': 'blue'})
+
     st.plotly_chart(fig)
 else:
     st.write("No daily count data available.")
