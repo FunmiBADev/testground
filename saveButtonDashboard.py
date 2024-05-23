@@ -90,9 +90,10 @@ def fetch_and_update_data():
 
     combined_df = pd.concat(all_data).reset_index(drop=True)
 
-    # Identify green_jres and eol_jres
+    # Identify JREs
     combined_df['green_jres'] = combined_df['jre_version'].apply(lambda x: x if x and (x.startswith('17') or x.startswith('21')) else None)
     combined_df['eol_jres'] = combined_df['jre_version'].apply(lambda x: x if x and x.startswith('1.8.0') and int(x.split('_')[1]) < 352 else None)
+    combined_df['env_var_cmd'] = combined_df['jre_version'].apply(lambda x: x if x and (x.startswith('JAVA_8') else None)
 
 def save_daily_counts():
     today = datetime.now().strftime('%Y-%m-%d')
