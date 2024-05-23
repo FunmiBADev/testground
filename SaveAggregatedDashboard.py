@@ -150,8 +150,16 @@ bar_chart_df = pd.melt(aggregated_data, id_vars=['platform_tag'],
                        value_vars=['green_jres_count', 'eol_jres_count', 'env_var_cmd_count'],
                        var_name='JRE Type', value_name='Count')
 
+# Define custom colors for the bar chart
+color_discrete_map = {
+    'green_jres_count': 'green',
+    'eol_jres_count': 'red',
+    'env_var_cmd_count': 'purple'
+}
+
 fig = px.bar(bar_chart_df, x='platform_tag', y='Count', color='JRE Type', title='JRE Versions Distribution by Platform Tag', 
-             labels={'Count': 'Number of JREs', 'platform_tag': 'Platform Tag'})
+             labels={'Count': 'Number of JREs', 'platform_tag': 'Platform Tag'},
+             color_discrete_map=color_discrete_map)
 
 st.plotly_chart(fig)
 
@@ -170,7 +178,8 @@ if os.path.exists('daily_jre_counts.csv'):
     # Create a line chart for daily counts
     fig = px.line(daily_counts_df, x='date', y=['green_jres_count', 'eol_jres_count', 'env_var_cmd_count'],
                   labels={'value': 'Count', 'variable': 'JRE Type'},
-                  title='Daily Green, End-of-Life, and env_var_cmd JRE Counts')
+                  title='Daily Green, End-of-Life, and env_var_cmd JRE Counts',
+                  color_discrete_map=color_discrete_map)
     st.plotly_chart(fig)
 else:
     st.write("No daily count data available.")
