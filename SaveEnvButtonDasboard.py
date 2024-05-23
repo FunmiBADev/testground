@@ -41,19 +41,17 @@ def get_platform_token(platform_endpoint, username, password):
     return ''
 
 def find_jre(assemblies, variables, start_cmd):
-    """Find Java Runtime Environment info and count environment variables."""
+    """Find Java Runtime Environment info."""
     jre_info = ''
-    env_var_count = 0
     for assembly in assemblies:
         if 'jre' in assembly['name']:
             jre_info += f"ASSEMBLY = {assembly['name']}={assembly['version']} "
     for variable in variables:
         if 'JAVA_8' in variable['value'] or 'JAVA_11' in variable['value'] or 'JAVA_17' in variable['value']:
             jre_info += f"ENV_VARIABLE = {variable['value']} "
-            env_var_count += 1
     if "JAVA_8" in start_cmd or "JAVA_11" in start_cmd or "JAVA_17" in start_cmd:
         jre_info += f"START_CMD = {start_cmd}"
-    return jre_info.strip(), env_var_count
+    return jre_info.strip()
 
 def parse_jre_version(jre_string):
     """Parse the JRE version from a string."""
@@ -80,8 +78,8 @@ def fetch_and_update_data():
 
         # Converting platform definitions to a DataFrame and enhancing it
         df = pd.DataFrame(data=platform_defs)
-        df[['jre', 'env_var_count']] = df.apply(lambda row: find_jre(row['assemblies'], row['variables'], row['startCmd'] if row['startCmd'] else 'nocmd'), axis=1, result_type='expand')
-        df = df[['name', 'host', 'jre', 'env_var_count']]
+        df['jre'] = df.apply(lambda row: find_jre(row['assemblies'], row['variables'], row['startCmd'] if row['startCmd'] else 'nocmd'), axis=1)
+        df = df[['name', 'host', 'jre']]
 
         df['jre_version'] = df['jre'].apply(parse_jre_version)
 
@@ -92,20 +90,21 @@ def fetch_and_update_data():
 
     combined_df = pd.concat(all_data).reset_index(drop=True)
 
-    # Identify green_jres and eol_jres
+    # Identify JREs
     combined_df['green_jres'] = combined_df['jre_version'].apply(lambda x: x if x and (x.startswith('17') or x.startswith('21')) else None)
     combined_df['eol_jres'] = combined_df['jre_version'].apply(lambda x: x if x and x.startswith('1.8.0') and int(x.split('_')[1]) < 352 else None)
+    combined_df['env_var_cmd'] = combined_df['jre_version'].apply(lambda x: x if x and (x.startswith('JAVA_8') or x.startswith('JAVA_11') or x.startswith('JAVA_17')) else None)
 
 def save_daily_counts():
     today = datetime.now().strftime('%Y-%m-%d')
     green_jres_count = combined_df['green_jres'].notna().sum()
     eol_jres_count = combined_df['eol_jres'].notna().sum()
-    env_var_count = combined_df['env_var_count'].sum()
+    env_var_cmd_count = combined_df['env_var_cmd'].notna().sum()
     data = {
         'date': [today],
         'green_jres_count': [green_jres_count],
         'eol_jres_count': [eol_jres_count],
-        'env_var_count': [env_var_count]
+        'env_var_cmd_count': [env_var_cmd_count]
     }
     df = pd.DataFrame(data)
     
@@ -145,18 +144,18 @@ filtered_df = combined_df[combined_df['platform_tag'] == platform_tag_filter]
 
 green_jres_count = filtered_df['green_jres'].notna().sum()
 eol_jres_count = filtered_df['eol_jres'].notna().sum()
-env_var_count = filtered_df['env_var_count'].sum()
+env_var_cmd_count = filtered_df['env_var_cmd'].notna().sum()
 
 # Display counts
 st.write(f"Green JREs: {green_jres_count}")
 st.write(f"End-of-Life JREs: {eol_jres_count}")
-st.write(f"Environment Variables Count: {env_var_count}")
+st.write(f"env_var_cmd Count: {env_var_cmd_count}")
 
 # Create a bar chart
-data = {'JRE Type': ['Green JREs', 'End-of-Life JREs', 'Environment Variables'], 'Count': [green_jres_count, eol_jres_count, env_var_count]}
+data = {'JRE Type': ['Green JREs', 'End-of-Life JREs', 'env_var_cmd'], 'Count': [green_jres_count, eol_jres_count, env_var_cmd_count]}
 bar_chart_df = pd.DataFrame(data)
 
-fig = px.bar(bar_chart_df, x='JRE Type', y='Count', title='JRE Versions and Environment Variables Distribution')
+fig = px.bar(bar_chart_df, x='JRE Type', y='Count', title='JRE Versions Distribution')
 
 st.plotly_chart(fig)
 
@@ -173,9 +172,9 @@ if os.path.exists('daily_jre_counts.csv'):
     st.dataframe(daily_counts_df)
 
     # Create a line chart for daily counts
-    fig = px.line(daily_counts_df, x='date', y=['green_jres_count', 'eol_jres_count', 'env_var_count'],
+    fig = px.line(daily_counts_df, x='date', y=['green_jres_count', 'eol_jres_count', 'env_var_cmd_count'],
                   labels={'value': 'Count', 'variable': 'JRE Type'},
-                  title='Daily Green and End-of-Life JRE Counts and Environment Variables Count')
+                  title='Daily Green, End-of-Life, and env_var_cmd JRE Counts')
     st.plotly_chart(fig)
 else:
     st.write("No daily count data available.")
