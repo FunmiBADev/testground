@@ -83,8 +83,9 @@ def fetch_and_update_data():
 
         df['jre_version'] = df['jre'].apply(parse_jre_version)
 
-        # Add platform tag for filtering in Streamlit
+        # Add platform tag and tag name for filtering in Streamlit
         df['platform_tag'] = platform_tag
+        df['platform_tag_name'] = platform_tag_name
 
         all_data.append(df)
 
@@ -97,15 +98,23 @@ def fetch_and_update_data():
 
 def save_daily_counts():
     today = datetime.now().strftime('%Y-%m-%d')
-    green_jres_count = combined_df['green_jres'].notna().sum()
-    eol_jres_count = combined_df['eol_jres'].notna().sum()
-    env_var_cmd_count = combined_df['env_var_cmd'].notna().sum()
-    data = {
-        'date': [today],
-        'green_jres_count': [green_jres_count],
-        'eol_jres_count': [eol_jres_count],
-        'env_var_cmd_count': [env_var_cmd_count]
-    }
+    data = []
+
+    for tag in platform_tags:
+        platform_tag_name = tag['tag_name']
+        filtered_df = combined_df[combined_df['platform_tag_name'] == platform_tag_name]
+        green_jres_count = filtered_df['green_jres'].notna().sum()
+        eol_jres_count = filtered_df['eol_jres'].notna().sum()
+        env_var_cmd_count = filtered_df['env_var_cmd'].notna().sum()
+        
+        data.append({
+            'date': today,
+            'platform_tag_name': platform_tag_name,
+            'green_jres_count': green_jres_count,
+            'eol_jres_count': eol_jres_count,
+            'env_var_cmd_count': env_var_cmd_count
+        })
+
     df = pd.DataFrame(data)
     
     # Append data to CSV file
