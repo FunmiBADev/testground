@@ -1,0 +1,7 @@
+{
+  "platform_tags": [
+    {"tag": "AA42557", "tag_name": "PLATFORM", "url": "https://www.platform.com"},
+    {"tag": "AA34475", "tag_name": "PLATFORM_ONE", "url": "https://www.platformone.com"},
+    {"tag": "AA45492", "tag_name": "PLATFORM_TWO", "url": "https://www.platformtwo.com"}
+  ]
+}

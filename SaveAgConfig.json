@@ -1,10 +1,10 @@
-Creating the configs directory and moving JSON files:
-Ensure your directory structure looks like this:
-your_script_directory/
-├── configs/
-│   ├── config.json
-│   └── apis.json
-└── your_script.py
+// Creating the configs directory and moving JSON files:
+// Ensure your directory structure looks like this:
+// your_script_directory/
+// ├── configs/
+// │   ├── config.json
+// │   └── apis.json
+// └── your_script.py
 
 
 {

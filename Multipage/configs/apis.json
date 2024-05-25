@@ -1,0 +1,5 @@
+{
+  "PLATFORM_API_LOGIN": "/api/login",
+  "PLATFORM_API_PROCESS_DEFINITIONS": "/api/proc/definitions",
+  "PLATFORM_API_JRE": "/api/jre/display"
+}
