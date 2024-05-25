@@ -1,15 +1,17 @@
-#Create an API endpoints configuration file:
-#Create a file named apis.json and place it in the same directory as your script:
+Creating the configs directory and moving JSON files:
+Ensure your directory structure looks like this:
+your_script_directory/
+├── configs/
+│   ├── config.json
+│   └── apis.json
+└── your_script.py
+
 
 {
   "PLATFORM_API_LOGIN": "/api/login",
   "PLATFORM_API_PROCESS_DEFINITIONS": "/api/proc/definitions",
   "PLATFORM_API_JRE": "/api/jre/display"
 }
-
-
-#Create a configuration file:
-#Create a file named config.json and place it in the same directory as your script:
 
 {
   "platform_tags": [
