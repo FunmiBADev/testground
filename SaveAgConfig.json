@@ -1,0 +1,20 @@
+#Create an API endpoints configuration file:
+#Create a file named apis.json and place it in the same directory as your script:
+
+{
+  "PLATFORM_API_LOGIN": "/api/login",
+  "PLATFORM_API_PROCESS_DEFINITIONS": "/api/proc/definitions",
+  "PLATFORM_API_JRE": "/api/jre/display"
+}
+
+
+#Create a configuration file:
+#Create a file named config.json and place it in the same directory as your script:
+
+{
+  "platform_tags": [
+    {"tag": "AA42557", "tag_name": "PLATFORM", "url": "https://www.platform.com"},
+    {"tag": "AA34475", "tag_name": "PLATFORM_ONE", "url": "https://www.platformone.com"},
+    {"tag": "AA45492", "tag_name": "PLATFORM_TWO", "url": "https://www.platformtwo.com"}
+  ]
+}
