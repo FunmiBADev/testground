@@ -186,3 +186,8 @@ elif page == "Platform Dashboard":
 # Button for manual save
 if st.sidebar.button('Manual Save Counts'):
     manual_save_counts()
+
+
+PASSWORD=your_password
+AZURE_CONNECTION_STRING=your_azure_connection_string
+AZURE_CONTAINER_NAME=your_container_name
