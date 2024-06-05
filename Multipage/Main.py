@@ -16,9 +16,11 @@ st.sidebar.title("Navigation")
 page = st.sidebar.radio("Go to", ["Aggregated Dashboard", "Platform Dashboard"])
 
 if page == "Aggregated Dashboard":
-    import pages.aggregated_dashboard
+    from pages.aggregated_dashboard import display_aggregated_dashboard
+    display_aggregated_dashboard(jre_processor)
 elif page == "Platform Dashboard":
-    import pages.platform_dashboard
+    from pages.platform_dashboard import display_platform_dashboard
+    display_platform_dashboard(jre_processor)
 
 # Button for manual save
 if st.sidebar.button('Manual Save Counts'):
