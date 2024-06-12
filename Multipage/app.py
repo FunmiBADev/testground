@@ -53,28 +53,25 @@ def get_platform_token(platform_endpoint, username, password):
 def find_jre(assemblies, variables, start_cmd):
     """Find Java Runtime Environment info and count environment variables."""
     jre_info = ''
-    env_var_count = 0
     for assembly in assemblies:
         if 'jre' in assembly['name']:
             jre_info += f"ASSEMBLY = {assembly['name']}={assembly['version']} "
     for variable in variables:
-        if 'JAVA_8' in variable['value'] or 'JAVA_11' in variable['value'] or 'JAVA_17' in variable['value']:
+        if variable['value'] is not None and 'JAVA_8' in variable['value']:
             jre_info += f"ENV_VARIABLE = {variable['value']} "
-            env_var_count += 1
-    if "JAVA_8" in start_cmd or "JAVA_11" in start_cmd or "JAVA_17" in start_cmd:
+    if "JAVA_8" in start_cmd :
         jre_info += f"START_CMD = {start_cmd}"
-    return jre_info.strip(), env_var_count
+    return jre_info
 
 def parse_jre_version(jre_string):
     """Parse the JRE version from a string."""
-    version = None
     if 'ASSEMBLY =' in jre_string:
-        version = jre_string.split('ASSEMBLY =')[-1].split(' ')[0].split('=')[1]
+        return jre_string.split('=')[-1]
     elif 'ENV_VARIABLE =' in jre_string:
-        version = jre_string.split('ENV_VARIABLE =')[-1].split(' ')[0]
+        return jre_string.split('=')[-1]
     elif 'START_CMD =' in jre_string:
-        version = jre_string.split('START_CMD =')[-1].split(' ')[0]
-    return version
+        return jre_string.split('=')[1]
+    return None
 
 def fetch_and_update_data():
     global combined_df
@@ -108,8 +105,9 @@ def fetch_and_update_data():
     combined_df = pd.concat(all_data).reset_index(drop=True)
 
     # Identify green_jres and eol_jres
-    combined_df['green_jres'] = combined_df['jre_version'].apply(lambda x: x if x and (x.startswith('17') or x.startswith('21')) else None)
+    combined_df['green_jres'] = combined_df['jre_version'].apply(lambda x: x if x and (x.startswith('17') or x.startswith('21') or x.startswith('1.8.0') and int(x.split('_')[1]) >= 352) else None)
     combined_df['eol_jres'] = combined_df['jre_version'].apply(lambda x: x if x and x.startswith('1.8.0') and int(x.split('_')[1]) < 352 else None)
+    combined_df['env_var_cmd'] = combined_df['jre_version'].apply(lambda x: x if x and 'JAVA 8' in x else None)
 
 # Initial data fetch
 try:
