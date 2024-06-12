@@ -27,7 +27,6 @@ with open(os.path.join(configs_dir, 'apis.json')) as apis_file:
 
 # Credentials
 username = 'testUser'
-password = os.getenv('PASSWORD')
 
 # API Endpoints
 PLATFORM_API_LOGIN = apis['PLATFORM_API_LOGIN']
