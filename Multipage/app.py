@@ -37,9 +37,17 @@ PLATFORM_API_JRE = apis['PLATFORM_API_JRE']
 # Global variable to store combined DataFrame
 combined_df = pd.DataFrame()
 
-def get_platform_token(platform_endpoint, username, password):
+
+def __get_password(platform_tag):
+        if 'UAT' in [tag['tag'] for tag in self.platform_tags]:
+            return os.getenv('PASSUAT')
+        else:
+            return os.getenv('PASSWORD')
+
+def get_platform_token(platform_endpoint, username, plaform_tag):
     """Get platform token."""
     try:
+        password = __get_password(platform_tag)
         response = requests.post(f'{platform_endpoint}{PLATFORM_API_LOGIN}', auth=(username, password))
         for header in response.headers['Set-Cookie'].split(';'):
             if header.startswith('platform_token'):
