@@ -50,7 +50,7 @@ PLATFORM_API_JRE = apis['PLATFORM_API_JRE']
 # Global variable to store combined DataFrame
 combined_df = pd.DataFrame()
 
-def __get_password(platform_tag):
+def get_password(platform_tag):
     if 'UAT' in [tag['tag'] for tag in platform_tags]:
         return os.getenv('PASSUAT')
     else:
@@ -59,7 +59,7 @@ def __get_password(platform_tag):
 def get_platform_token(platform_endpoint, username, platform_tag):
     """Get platform token."""
     try:
-        password = __get_password(platform_tag)
+        password = get_password(platform_tag)
         response = requests.post(f'{platform_endpoint}{PLATFORM_API_LOGIN}', auth=(username, password))
         for header in response.headers['Set-Cookie'].split(';'):
             if header.startswith('platform_token'):
@@ -100,18 +100,17 @@ def fetch_and_update_data():
     for stats in platform_tags:
         platform_url = stats["url"]
         platform_tag = stats["tag"]
-        platform_tag_name = stats["tag_name"]
+        platform_password = get_password(platform_tag)
 
-        platform_token = get_platform_token(platform_url, username, platform_tag)
+        platform_token = get_platform_token(platform_url, username, platform_password)
         try:
             platform_defs = requests.get(f"{platform_url}{PLATFORM_API_PROCESS_DEFINITIONS}", headers={"Cookie": platform_token}).json()
 
             # Converting platform definitions to a DataFrame and enhancing it
             df = pd.DataFrame(data=platform_defs)
             df[['jre', 'env_var_count']] = df.apply(lambda row: find_jre(row['assemblies'], row['variables'], row['startCmd'] if row['startCmd'] else 'nocmd'), axis=1, result_type='expand')
-            df = df[['name', 'host', 'jre', 'env_var_count']]
-
             df['jre_version'] = df['jre'].apply(parse_jre_version)
+            df = df[['name', 'host', 'jre']]
 
             # Add platform tag for filtering in Streamlit
             df['platform_tag'] = platform_tag
