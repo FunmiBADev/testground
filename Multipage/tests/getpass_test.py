@@ -1,13 +1,11 @@
 import os
 from dotenv import load_dotenv
 import pytest
-
-# Load the test environment variables from the .env.test file
-load_dotenv('.env.test')
 from logic import main
 
 # Load the test environment variables from the .env.test file
-load_dotenv('.env.test')
+filepath = find_dotenv(".env.test")
+load_dotenv(filepath, override=True)
 
 def test_get_username_and_password_prod():
     platform_tag = 'PROD'
