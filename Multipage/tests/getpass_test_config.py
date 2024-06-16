@@ -73,3 +73,31 @@ def test_get_username_and_password_mixed_case_uat():
 
 if __name__ == "__main__":
     pytest.main()
+
+
+### Add on
+
+# Load the test environment variables from the .env.test file
+load_dotenv('.env.test')
+
+@pytest.fixture(scope='module', autouse=True)
+def set_env_vars():
+    # Patch the environment variables for the duration of the tests
+    with patch.dict(os.environ, {
+        'PROD_USERNAME': os.getenv('PROD_USERNAME'),
+        'PASS_PROD': os.getenv('PASS_PROD'),
+        'UAT_USERNAME': os.getenv('UAT_USERNAME'),
+        'PASS_UAT': os.getenv('PASS_UAT')
+    }):
+        yield
+
+@pytest.mark.parametrize("platform_tag, expected_username, expected_password", [
+    ('PROD', os.getenv('PROD_USERNAME'), os.getenv('PASS_PROD')),
+    ('UAT', os.getenv('UAT_USERNAME'), os.getenv('PASS_UAT')),
+    ('prod', os.getenv('PROD_USERNAME'), os.getenv('PASS_PROD')),
+    ('uat', os.getenv('UAT_USERNAME'), os.getenv('PASS_UAT')),
+])
+def test_get_username_and_password(platform_tag, expected_username, expected_password):
+    username, password = getUsernameAndPassword(platform_tag)
+    assert username == expected_username
+    assert password == expected_password
