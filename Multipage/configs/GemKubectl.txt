@@ -1,0 +1,70 @@
+
+How to build my python project code artifacts  locally and use kubectl commands to deploy 
+
+Show drafts
+volume_up
+Here's how you can build your Python project code artifacts locally and deploy them using kubectl commands:
+
+1. Local Development and Testing:
+
+Project Structure: Organize your project with a clear separation between your Python code and deployment configurations. Here's a common structure:
+app.py: Your main Python application file.
+requirements.txt: Lists all the dependencies your project needs.
+2. Building the Artifact:
+
+There are two main approaches to build an artifact for deployment in Kubernetes:
+
+Docker Image: This is a popular approach. Here's the workflow:
+
+Dockerfile: Create a Dockerfile that specifies the base image (e.g., python:3.9), installs dependencies (RUN pip install -r requirements.txt), and copies your application code (COPY . .).
+Build the Image: Use docker build -t <image-name> . to build the image from the Dockerfile. Replace <image-name> with a desired name for your image (e.g., my-python-app).
+Building a Python Package: If your project is more like a library, you can build a distributable package:
+
+Setuptools: Use python setup.py sdist bdist_wheel to create source distribution (.tar.gz) and wheel package (.whl). These packages can be deployed directly to Kubernetes.
+3. Kubernetes Deployment Configuration:
+
+Deployment YAML: Create a YAML file that defines how your application will run in Kubernetes. This file specifies:
+Image: (For Docker) The name of the Docker image to use.
+Replicas: The number of pods (instances) of your application to run.
+Ports: The ports your application exposes.
+Deployment YAML Example: Here's a basic example:
+YAML
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-python-app
+spec:
+  replicas: 2  # Number of pods (application instances)
+  selector:
+    matchLabels:
+      app: my-python-app
+  template:
+    metadata:
+      labels:
+        app: my-python-app
+    spec:
+      containers:
+      - name: my-python-app
+        image: my-python-app:latest  # Replace with your image name
+        ports:
+        - containerPort: 5000  # Replace with your application port
+Use code with caution.
+content_copy
+4. Deploying with kubectl:
+
+Assuming you have a Kubernetes cluster running: Use the following kubectl commands:
+Create the deployment: kubectl apply -f deployment.yaml (replace deployment.yaml with your actual file name)
+Verify deployment: kubectl get deployments
+View logs: kubectl logs -f deployment/<deployment-name> (replace <deployment-name> with the actual name)
+5. Additional Considerations:
+
+Environment Variables: You can use Kubernetes Secrets or ConfigMaps to manage sensitive information like API keys or database credentials.
+Scaling: The deployment YAML defines the initial number of replicas. You can use kubectl scale deployment <deployment-name> --replicas=<new-replicas> to scale your application up or down.
+Remember to replace placeholders like <image-name> and <deployment-name> with your specific values. This is a basic overview, and you can find more detailed information and examples in the official Kubernetes documentation https://kubernetes.io/docs/home/.
+
+Sources
+info
+github.com/CiscoDevNet/app-first-security-code
+
+
+
