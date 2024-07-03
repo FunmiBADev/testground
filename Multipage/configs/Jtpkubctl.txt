@@ -1,0 +1,138 @@
+How to build my python project code artifacts  locally and use kubectl commands to deploy 
+
+Building your Python project code artifacts locally and using kubectl commands to deploy it involves several steps. Here's a guide to help you through the process:
+
+Prerequisites
+Docker: To build container images.
+kubectl: To interact with your Kubernetes cluster.
+Kubernetes Cluster: You can use a local cluster like Minikube, Kind, or a remote cluster.
+Python Application: Your Python code.
+Step-by-Step Guide
+1. Prepare Your Python Application
+Ensure your Python application has the necessary files like requirements.txt for dependencies and your source code.
+
+Example project structure:
+
+markdown
+Copy code
+my-python-app/
+│
+├── app/
+│   ├── __init__.py
+│   ├── main.py
+│
+├── Dockerfile
+├── requirements.txt
+└── kubernetes/
+    ├── deployment.yaml
+    └── service.yaml
+2. Write a Dockerfile
+Create a Dockerfile to containerize your Python application. Here's a basic example:
+
+Dockerfile
+Copy code
+# Use an official Python runtime as a parent image
+FROM python:3.9-slim
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the current directory contents into the container at /app
+COPY . /app
+
+# Install any needed packages specified in requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Make port 80 available to the world outside this container
+EXPOSE 80
+
+# Define environment variable
+ENV NAME World
+
+# Run app.py when the container launches
+CMD ["python", "app/main.py"]
+3. Build the Docker Image
+Build the Docker image locally with the following command:
+
+sh
+Copy code
+docker build -t my-python-app:latest .
+4. Test the Docker Image Locally (Optional)
+Run the Docker container to ensure it works as expected:
+
+sh
+Copy code
+docker run -p 4000:80 my-python-app:latest
+Access the application at http://localhost:4000.
+
+5. Write Kubernetes Deployment and Service YAML Files
+Create a deployment.yaml and service.yaml under the kubernetes directory.
+
+deployment.yaml:
+
+yaml
+Copy code
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-python-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-python-app
+  template:
+    metadata:
+      labels:
+        app: my-python-app
+    spec:
+      containers:
+      - name: my-python-app
+        image: my-python-app:latest
+        ports:
+        - containerPort: 80
+service.yaml:
+
+yaml
+Copy code
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-python-app
+spec:
+  selector:
+    app: my-python-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
+6. Deploy to Kubernetes
+If using a local cluster like Minikube, you might need to load the Docker image into Minikube:
+
+sh
+Copy code
+minikube image load my-python-app:latest
+Apply the Kubernetes manifests using kubectl:
+
+sh
+Copy code
+kubectl apply -f kubernetes/deployment.yaml
+kubectl apply -f kubernetes/service.yaml
+7. Verify the Deployment
+Check the status of your pods and services:
+
+sh
+Copy code
+kubectl get pods
+kubectl get services
+If using Minikube, get the service URL:
+
+sh
+Copy code
+minikube service my-python-app --url
+Access the application using the provided URL.
+
+Summary
+By following these steps, you've built your Python project into a Docker image and deployed it to a Kubernetes cluster using kubectl. This process includes writing a Dockerfile, building the image, creating Kubernetes manifests, and applying them to the cluster.
+
