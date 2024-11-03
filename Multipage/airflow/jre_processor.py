@@ -39,4 +39,4 @@ class JREProcessor:
 if __name__ == "__main__":
     # Optional: Testing code to run only when executing this file directly.
     processor = JREProcessor()
-    processor.manual_save_counts()
+    processor.manual_save_counts(swc_name)
