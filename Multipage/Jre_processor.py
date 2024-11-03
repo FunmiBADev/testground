@@ -155,9 +155,9 @@ class JREProcessor:
 
         logging.info(f"JRE Version for {today} saved and uploaded to Azure Blob Storage")
 
-    def manual_save_counts(self):
+    def manual_save_counts(self, swc_name):
         try:
-            self.fetch_and_update_data()
+            self.fetch_and_update_data(swc_name)
             self.save_daily_counts()
         except Exception as e:
             logging.error(f"Manual save failed: {e}")
